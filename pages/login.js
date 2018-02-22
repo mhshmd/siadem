@@ -5,7 +5,7 @@ import withRedux from "next-redux-wrapper";
 import { bindActionCreators } from 'redux';
 import { initStore } from "../util/redux/store";
 import { setUser } from "../util/redux/actions/userAction";
-import 'jquery'
+import $ from 'jquery'
 const FormItem = Form.Item;
 
 class NormalLoginForm extends React.Component {
@@ -21,7 +21,7 @@ class NormalLoginForm extends React.Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        $.post("/login", data, function(data, status){
+        $.post("/login", values, function(data, status){
             alert("Data: " + data + "\nStatus: " + status);
         });
         // this.props.socket.emit('login.submit', values, ( res_server )=>{

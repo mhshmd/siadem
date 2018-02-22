@@ -27,6 +27,12 @@ const session = require("express-session")({
 });
 const sharedsession = require("express-socket.io-session");
 
+//modul cookie parser utk mengatur cookie
+const cookieParser = require('cookie-parser');
+
+//modul body parser utk mengatur POST request
+const bodyParser = require('body-parser');
+
 // socket and server instance
 const app = express();
 const server = require("http").Server(app)
@@ -35,6 +41,8 @@ const redis_adapter = require('socket.io-redis');
 io.adapter(redis_adapter({ host: 'localhost', port: 6379 }));
 
 app.use(session);
+app.use(cookieParser("ID==&&%^&A&SHBJSAsjhbJGhUGkbKiUvii^%^#$%^&98G8UIugg=="));
+app.use(bodyParser.urlencoded({extended: true}));
 io.use(
   sharedsession(session, {
     autoSave: true
@@ -55,7 +63,7 @@ nextApp
   .prepare()
   .then(() => {
     app.post('/login', (req, res) => {
-      console.log(req.body);
+      console.log(111,req.body);
       return;
       User.findOne({username: data.username, password: crypto.createHmac('sha256', data.password).digest('hex')}, '_id', (err, res_user_id)=>{
           console.log(err, res_user_id);
