@@ -59,30 +59,27 @@ io.on('connection', function (client) {
   commonEvents(client)
 });
 
+const User = require('./server/models/User.model')
+const crypto = require('crypto')
+
 nextApp
   .prepare()
   .then(() => {
     app.post('/login', (req, res) => {
-      console.log(111,req.body);
-      return;
-      User.findOne({username: data.username, password: crypto.createHmac('sha256', data.password).digest('hex')}, '_id', (err, res_user_id)=>{
+      User.findOne({username: req.body.username, password: crypto.createHmac('sha256', req.body.password).digest('hex')}, '_id', (err, res_user_id)=>{
           console.log(err, res_user_id);
           if(!err){
               if(res_user_id !== null) {
-                  console.log(res_user_id);
-                  client.handshake.cookies.uid = res_user_id._id;
-                  cb_client({valid_user: true, uid: res_user_id._id})
+                  res.cookie( 'uid', res_user_id._id )
+                  const actualPage = '/'
+                  const queryParams = { uid: res_user_id._id }
+                  nextApp.render(req, res, actualPage, queryParams)
               } else{
-                  cb_client({valid_user: false, errMsg: 'Maaf, username atau password Anda salah.'})
               }
           } else{
               console.log(err);
-              cb_client({valid_user: false, errMsg: 'Maaf, kami dalam gangguan.'})
           }
       })
-      const actualPage = '/'
-      const queryParams = { id: 123 }
-      nextApp.render(req, res, actualPage, queryParams)
     })
 
     app.get("*", (req, res) => {
