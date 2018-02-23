@@ -49,13 +49,11 @@ io.use(
   })
 );
 io.use((client, next) => {
-  console.log(client.handshake.cookies);
   return next();
 });
 
 const commonEvents = require("./server/controllers/events/common.events");
 io.on("connection", function(client) {
-  console.log("someone connected.");
   commonEvents(client);
 });
 

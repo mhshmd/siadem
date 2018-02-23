@@ -12,6 +12,7 @@ export default class MyDocument extends Document {
         <title>SiAdem - Politeknik Statistika STIS</title>
         <link href="/static/css/antd.min.css" rel="stylesheet" />
         <link href="/static/css/nprogress.css" rel="stylesheet" />
+        <link rel="stylesheet" href="/_next/static/style.css" />
         <style>{`
           .reset-a, .reset-a:hover, .reset-a:visited, .reset-a:focus, .reset-a:active  {
             text-decoration: none;
