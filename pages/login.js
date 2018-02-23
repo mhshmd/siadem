@@ -2,34 +2,33 @@ import { Form, Icon, Input, Button, Checkbox, Row, Col, Alert } from "antd";
 import configureProgressBar from "../util/routing";
 import Router from "next/router";
 import withRedux from "next-redux-wrapper";
-import { bindActionCreators } from 'redux';
+import { bindActionCreators } from "redux";
 import { initStore } from "../util/redux/store";
 import { setUser } from "../util/redux/actions/userAction";
-import $ from 'jquery'
+import $ from "jquery";
 const FormItem = Form.Item;
 
 class NormalLoginForm extends React.Component {
   state = {
     errMsg: null
-  }
+  };
 
-  onClose = (e) => {
-    this.setState({errMsg: null})
+  onClose = e => {
+    this.setState({ errMsg: null });
   };
 
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        $.post("/login", values, function(data, status){
-            alert("Data: " + data + "\nStatus: " + status);
+        $.post("/login", values, (data, status) => {
+          if (data.isValid) {
+            this.props.setUser(data.uid, true);
+            Router.replace("/");
+          } else {
+            this.setState({ errMsg: data.errMsg });
+          }
         });
-        // this.props.socket.emit('login.submit', values, ( res_server )=>{
-        //   if( res_server.valid_user ){
-        //     this.props.setUser(res_server.uid, true)
-        //     Router.replace('/')
-        //   } else this.setState({errMsg: res_server.errMsg})
-        // })
       }
     });
   };
@@ -41,11 +40,24 @@ class NormalLoginForm extends React.Component {
   render() {
     const { getFieldDecorator } = this.props.form;
     const { errMsg } = this.state;
+    const { uid } = this.props;
+    if (uid) {
+      Router.replace("/");
+      return null;
+    }
     return (
       <div>
         <Row type="flex" justify="center" align="middle">
           <Col span={6}>
-            {errMsg?<Alert message={errMsg} type="error" showIcon closable onClose={this.onClose} />:null}
+            {errMsg ? (
+              <Alert
+                message={errMsg}
+                type="error"
+                showIcon
+                closable
+                onClose={this.onClose}
+              />
+            ) : null}
             <Form onSubmit={this.handleSubmit} className="login-form">
               <FormItem>
                 {getFieldDecorator("username", {
@@ -58,6 +70,7 @@ class NormalLoginForm extends React.Component {
                       <Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />
                     }
                     placeholder="Username"
+                    autoComplete="off"
                   />
                 )}
               </FormItem>
@@ -73,6 +86,7 @@ class NormalLoginForm extends React.Component {
                     }
                     type="password"
                     placeholder="Password"
+                    autoComplete="off"
                   />
                 )}
               </FormItem>
@@ -95,10 +109,14 @@ class NormalLoginForm extends React.Component {
 
 const WrappedNormalLoginForm = Form.create()(NormalLoginForm);
 
+const mapStateToProps = ({ user }) => ({ uid: user.uid });
+
 const mapDispatchToProps = dispatch => {
   return {
     setUser: bindActionCreators(setUser, dispatch)
   };
 };
 
-export default withRedux(initStore, state=>state, mapDispatchToProps)(WrappedNormalLoginForm);
+export default withRedux(initStore, mapStateToProps, mapDispatchToProps)(
+  WrappedNormalLoginForm
+);

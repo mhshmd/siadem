@@ -8,6 +8,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from "react-redux";
 import { setDefaultOpenKeys } from "../util/redux/actions/layoutAction";
 import LinkWithHand from "../components/LinkWithHand"
+import { setUser } from "../util/redux/actions/userAction";
 
 export default ComposedComponent => {
   class WithLayout extends Component {
@@ -27,7 +28,11 @@ export default ComposedComponent => {
     };
 
     render() {
-      const { url, layout, setDefaultOpenKeys, user } = this.props;
+      const { url, layout, setDefaultOpenKeys, user, setUser } = this.props;
+      if(!user.uid && typeof window !== 'undefined'){
+        Router.push('/login')
+        return null
+      }
       return (
         <Layout>
           <Header className="header">
@@ -36,7 +41,7 @@ export default ComposedComponent => {
                 <LinkWithHand href='/'><span style={{ color: "white" }}>SiAdem</span></LinkWithHand>
               </Col>
               <Col>
-                {user.user_id?<Avatar>{user.user_id}</Avatar>:<LinkWithHand href='/login'><Button>Login</Button></LinkWithHand>}
+                <Avatar>{user.uid}</Avatar><LinkWithHand href='/logout'><Button onClick={()=>{setUser(null, false)}}>Logout</Button></LinkWithHand>
               </Col>
             </Row>
           </Header>
@@ -122,7 +127,8 @@ export default ComposedComponent => {
 
   const mapDispatchToProps = (dispatch) => {
     return {
-      setDefaultOpenKeys: bindActionCreators(setDefaultOpenKeys, dispatch)
+      setDefaultOpenKeys: bindActionCreators(setDefaultOpenKeys, dispatch),
+      setUser: bindActionCreators(setUser, dispatch)
     }
   }
 
