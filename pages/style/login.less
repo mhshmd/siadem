@@ -1,5 +1,10 @@
 @import "~antd/lib/style/themes/default.less";
 
+.main {
+  width: 328px;
+  margin: 0 auto;
+}
+
 .content {
   padding: 32px 0;
   flex: 1;
@@ -53,4 +58,17 @@
 .submit {
   width: 100%;
   margin-top: 12px;
+}
+
+.desc {
+  font-size: @font-size-base;
+  color: @text-color-secondary;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+:global {
+  .ant-form-item {
+    margin-bottom: 28px;
+  }
 }

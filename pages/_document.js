@@ -9,7 +9,7 @@ export default class MyDocument extends Document {
     return (
      <html>
        <Head>
-        <title>SiAdem - Politeknik Statistika STIS</title>
+        <title>Politeknik Statistika STIS</title>
         <link href="/static/css/antd.min.css" rel="stylesheet" />
         <link href="/static/css/nprogress.css" rel="stylesheet" />
         <link rel="stylesheet" href="/_next/static/style.css" />

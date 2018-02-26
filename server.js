@@ -35,7 +35,7 @@ const bodyParser = require("body-parser");
 
 // socket and server instance
 const app = express();
-const server = require("http").Server(app);
+const server = require("http").createServer(app);
 const io = require("socket.io")(server);
 const redis_adapter = require("socket.io-redis");
 io.adapter(redis_adapter({ host: "localhost", port: 6379 }));
@@ -49,6 +49,7 @@ io.use(
   })
 );
 io.use((client, next) => {
+  // console.log(client.handshake.cookies);
   return next();
 });
 
@@ -106,7 +107,7 @@ nextApp
 
     server.listen(80, err => {
       if (err) throw err;
-      console.log("> Ready on http://localhost");
+      console.log("> Ready gaes on http://localhost");
     });
   })
   .catch(ex => {

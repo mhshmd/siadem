@@ -14,7 +14,8 @@ const FormItem = Form.Item;
 
 class NormalLoginForm extends React.Component {
   state = {
-    errMsg: null
+    errMsg: null,
+    loading: false
   };
 
   onClose = e => {
@@ -32,10 +33,17 @@ class NormalLoginForm extends React.Component {
           } else {
             this.setState({ errMsg: data.errMsg });
           }
+          this.setState({ loading: false });
         });
+      } else{
+        this.setState({ loading: false });
       }
     });
   };
+
+  enterLoading = () => {
+    this.setState({ loading: true });
+  }
 
   componentDidMount() {
     configureProgressBar();
@@ -57,69 +65,72 @@ class NormalLoginForm extends React.Component {
             <div className={styles.top}>
               <div className={styles.header}>
                 <LinkWithHand href="/">
-                  <Logo className={styles.logo} alt='logo' />
-                  <span className={styles.title}>Bagian Umum</span>
+                  <Logo className={styles.logo} />
+                  <span className={styles.title}>Politeknik Statistika STIS</span>
                 </LinkWithHand>
               </div>
-              <div className={styles.desc}>Politeknik Statistika STIS</div>
+              <div className={styles.desc}>Bagian Umum</div>
             </div>
-            <Row type="flex" justify="center" align="middle">
-              <Col span={6}>
-                {errMsg ? (
-                  <Alert
-                    message={errMsg}
-                    type="error"
-                    showIcon
-                    closable
-                    onClose={this.onClose}
-                  />
-                ) : null}
-                <Form onSubmit={this.handleSubmit} className="login-form">
-                  <FormItem>
-                    {getFieldDecorator("username", {
-                      rules: [
-                        { required: true, message: "Please input your username!" }
-                      ]
-                    })(
-                      <Input
-                        prefix={
-                          <Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />
-                        }
-                        placeholder="Username"
-                        autoComplete="off"
-                      />
-                    )}
-                  </FormItem>
-                  <FormItem>
-                    {getFieldDecorator("password", {
-                      rules: [
-                        { required: true, message: "Please input your Password!" }
-                      ]
-                    })(
-                      <Input
-                        prefix={
-                          <Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />
-                        }
-                        type="password"
-                        placeholder="Password"
-                        autoComplete="off"
-                      />
-                    )}
-                  </FormItem>
-                  <FormItem>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      className="login-form-button"
+            <div className={styles.main}>
+              {errMsg ? (
+                <Alert
+                  message={errMsg}
+                  type="error"
+                  showIcon
+                  closable
+                  onClose={this.onClose}
+                  style={{marginBottom: '21px'}}
+                />
+              ) : null}
+              <Form onSubmit={this.handleSubmit} className="login-form">
+                <FormItem>
+                  {getFieldDecorator("username", {
+                    rules: [
+                      { required: true, message: "Please input your username!" }
+                    ]
+                  })(
+                    <Input
+                      prefix={
+                        <Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />
+                      }
+                      placeholder="Username"
                       size='large'
-                      className={styles.submit}
-                    >
-                      Log in
-                    </Button>
-                  </FormItem>
-                </Form>
-              </Col>
-            </Row>
+                      autoComplete="off"
+                    />
+                  )}
+                </FormItem>
+                <FormItem>
+                  {getFieldDecorator("password", {
+                    rules: [
+                      { required: true, message: "Please input your Password!" }
+                    ]
+                  })(
+                    <Input
+                      prefix={
+                        <Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />
+                      }
+                      type="password"
+                      placeholder="Password"
+                      size='large'
+                      autoComplete="off"
+                    />
+                  )}
+                </FormItem>
+                <FormItem>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="login-form-button"
+                    size='large'
+                    className={styles.submit}
+                    loading={this.state.loading} 
+                    onClick={this.enterLoading}
+                  >
+                    Log in
+                  </Button>
+                </FormItem>
+              </Form>
+            </div>
           </div>
         </div>
       </DocumentTitle>

@@ -1,14 +1,62 @@
-import { Component } from "react";
+import { PureComponent } from "react";
+import DocumentTitle from "react-document-title";
+import { ContainerQuery } from "react-container-query";
+import classNames from "classnames";
+import { enquireScreen } from "enquire-js";
 import { Layout, Menu, Breadcrumb, Icon, Button, Avatar, Row, Col } from "antd";
-const { Header, Content, Footer, Sider } = Layout;
-const SubMenu = Menu.SubMenu;
+import SiderMenu from "../components/SiderMenu";
 import configureProgressBar from "../util/routing";
 import Router from "next/router";
 import { bindActionCreators } from 'redux'
 import { connect } from "react-redux";
 import { setDefaultOpenKeys } from "../util/redux/actions/layoutAction";
-import LinkWithHand from "../components/LinkWithHand"
-import { setUser } from "../util/redux/actions/userAction";
+import LinkWithHand from "../../components/LinkWithHand"
+import { setUser } from "../../util/redux/actions/userAction";
+import { getMenuData } from "../../common/menu";
+import NotFound from "../../pages/404";
+
+const { Header, Content, Footer } = Layout;
+const SubMenu = Menu.SubMenu;
+
+const query = {
+  "screen-xs": {
+    maxWidth: 575
+  },
+  "screen-sm": {
+    minWidth: 576,
+    maxWidth: 767
+  },
+  "screen-md": {
+    minWidth: 768,
+    maxWidth: 991
+  },
+  "screen-lg": {
+    minWidth: 992,
+    maxWidth: 1199
+  },
+  "screen-xl": {
+    minWidth: 1200
+  }
+};
+
+let isMobile;
+enquireScreen(b => {
+  isMobile = b;
+});
+
+class BasicLayout extends PureComponent {
+  state = {
+    isMobile
+  };
+
+  componentDidMount() {
+    enquireScreen(mobile => {
+      this.setState({
+        isMobile: mobile
+      });
+    });
+  }
+}
 
 export default ComposedComponent => {
   class WithLayout extends Component {
@@ -114,7 +162,7 @@ export default ComposedComponent => {
                   <ComposedComponent {...this.props} />
                 </Content>
                 <Footer style={{ textAlign: "center" }}>
-                  ©{new Date().getFullYear()}{" "}
+                  Sistem Informasi Administrasi ©{new Date().getFullYear()}{" "}
                   Politeknik Statistika STIS
                 </Footer>
               </Layout>
