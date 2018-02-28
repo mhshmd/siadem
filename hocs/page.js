@@ -1,5 +1,5 @@
 import { compose } from 'redux';
-import withLayout from './withLayout';
+import BasicLayout from './layouts/BasicLayout';
 
 // export const pageWithoutLayout = compose(
 //   withData,
@@ -10,5 +10,5 @@ import withLayout from './withLayout';
 // );
 
 export default compose(
-  withLayout,
+  BasicLayout,
 );

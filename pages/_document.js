@@ -10,6 +10,7 @@ export default class MyDocument extends Document {
      <html>
        <Head>
         <title>Politeknik Statistika STIS</title>
+        <link rel='shortcut icon' type='image/x-icon' href='/static/favicon.ico' />
         <link href="/static/css/antd.min.css" rel="stylesheet" />
         <link href="/static/css/nprogress.css" rel="stylesheet" />
         <link rel="stylesheet" href="/_next/static/style.css" />

@@ -3,6 +3,7 @@ import { Layout, Menu, Icon } from "antd";
 import pathToRegexp from "path-to-regexp";
 import styles from "./index.less";
 import { urlToList } from "../../util/pathTools";
+import Link from '../../components/LinkWithHand'
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -21,31 +22,122 @@ const getIcon = icon => {
   return icon;
 };
 
-export const getMeunMatcheys = (flatMenuKeys, path) => {
-  return flatMenuKeys.filter(item => {
-    return pathToRegexp(item).test(path);
-  });
-};
-
-// <SiderMenu
-//     logo={logo}
-//     // 不带Authorized参数的情况下如果没有权限,会强制跳到403界面
-//     // If you do not have the Authorized parameter
-//     // you will be forced to jump to the 403 interface without permission
-//     Authorized={Authorized}
-//     menuData={getMenuData()}
-//     collapsed={collapsed}
-//     location={location}
-//     isMobile={this.state.isMobile}
-//     onCollapse={this.handleMenuCollapse}
-// />
 export default class SiderMenu extends PureComponent {
     constructor(props) {
       super(props);
       this.menus = props.menuData;
-      this.flatMenuKeys = this.getFlatMenuKeys(props.menuData);
-      this.state = {
-        openKeys: this.getDefaultCollapsedSubMenus(props),
-      };
+    }
+
+    conversionPath = (path) => {
+      if (path && path.indexOf('http') === 0) {
+        return path;
+      } else {
+        return `/${path || ''}`.replace(/\/+/g, '/');
+      }
+    };
+
+    getMenuItemPath = (item) => {
+      const itemPath = this.conversionPath(item.path);
+      const icon = getIcon(item.icon);
+      const { target, name } = item;
+      // Is it a http link
+      if (/^https?:\/\//.test(itemPath)) {
+        return (
+          <a href={itemPath} target={target}>
+            {icon}
+            <span>{name}</span>
+          </a>
+        );
+      }
+      return (
+        <Link
+          href={itemPath}
+          onClick={
+            this.props.isMobile
+              ? () => {
+                  this.props.onCollapse(true);
+                }
+              : undefined
+          }
+        >
+          {icon}
+          <span>{name}</span>
+        </Link>
+      );
+    };
+
+    getNavMenuItems = (menusData) => {
+      if (!menusData) {
+        return [];
+      }
+      return menusData
+        .filter(item => item.name && !item.hideInMenu)
+        .map((item) => {
+          // make dom
+          const ItemDom = this.getSubMenuOrItem(item);
+          console.log(ItemDom);
+          return ItemDom;
+        })
+        .filter(item => item);
+    };
+
+    /**
+   * get SubMenu or Item
+   */
+    getSubMenuOrItem = (item) => {
+      if (item.children && item.children.some(child => child.name)) {
+        return (
+          <SubMenu
+            title={
+              item.icon ? (
+                <span>
+                  {getIcon(item.icon)}
+                  <span>{item.name}</span>
+                </span>
+              ) : (
+                item.name
+              )
+            }
+            key={item.path}
+          >
+            {this.getNavMenuItems(item.children)}
+          </SubMenu>
+        );
+      } else {
+        return (
+          <Menu.Item key={item.path}>{this.getMenuItemPath(item)}</Menu.Item>
+        );
+      }
+    };
+    
+    render() {
+      const { Logo, collapsed, onCollapse } = this.props
+      // if pathname can't match, use the nearest parent's key
+      return (
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          breakpoint="lg"
+          onCollapse={onCollapse}
+          width={256}
+          className={styles.sider}
+        >
+          <div className={styles.logo} key="logo">
+            <Link to="/">
+              <Logo/>
+              <h1>Ant Design Pro</h1>
+            </Link>
+          </div>
+          <Menu
+            key="Menu"
+            theme="dark"
+            mode="inline"
+            style={{ padding: '16px 0', width: '100%' }}
+          >
+            {this.getNavMenuItems(this.menus)}
+          </Menu>
+        </Sider>
+      );
     }
 }

@@ -4,18 +4,20 @@ import { ContainerQuery } from "react-container-query";
 import classNames from "classnames";
 import { enquireScreen } from "enquire-js";
 import { Layout, Menu, Breadcrumb, Icon, Button, Avatar, Row, Col } from "antd";
-import SiderMenu from "../components/SiderMenu";
-import configureProgressBar from "../util/routing";
+import SiderMenu from "../../components/SiderMenu";
+import configureProgressBar from "../../util/routing";
 import Router from "next/router";
 import { bindActionCreators } from 'redux'
 import { connect } from "react-redux";
-import { setDefaultOpenKeys } from "../util/redux/actions/layoutAction";
+import { setDefaultOpenKeys } from "../../util/redux/actions/layoutAction";
 import LinkWithHand from "../../components/LinkWithHand"
 import { setUser } from "../../util/redux/actions/userAction";
+import { setSidebarCollapsed } from "../../util/redux/actions/layoutAction"
 import { getMenuData } from "../../common/menu";
 import NotFound from "../../pages/404";
+import Logo from '../../static/logo.svg';
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content, Footer, Sider } = Layout;
 const SubMenu = Menu.SubMenu;
 
 const query = {
@@ -44,133 +46,56 @@ enquireScreen(b => {
   isMobile = b;
 });
 
-class BasicLayout extends PureComponent {
-  state = {
-    isMobile
-  };
-
-  componentDidMount() {
-    enquireScreen(mobile => {
-      this.setState({
-        isMobile: mobile
-      });
-    });
-  }
-}
-
 export default ComposedComponent => {
-  class WithLayout extends Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        collapsed: false
-      };
-    }
-
+  class BasicLayout extends PureComponent {
+    state = {
+      isMobile
+    };
+  
     componentDidMount() {
+      enquireScreen(mobile => {
+        this.setState({
+          isMobile: mobile
+        });
+      });
       configureProgressBar();
     }
 
-    onCollapse = collapsed => {
-      this.setState({ collapsed });
-    };
+    handleMenuCollapse = (collapsed) => {
+      setSidebarCollapsed(collapsed)
+    }
 
     render() {
-      const { url, layout, setDefaultOpenKeys, user, setUser } = this.props;
-      if(!user.uid && typeof window !== 'undefined'){
-        Router.push('/login')
-        return null
-      }
-      return (
+      const {
+        collapsed
+      } = this.props;
+      const layout = (
         <Layout>
-          <Header className="header">
-            <Row type="flex" justify="space-between">
-              <Col>
-                <LinkWithHand href='/'><span style={{ color: "white" }}>SiAdem</span></LinkWithHand>
-              </Col>
-              <Col>
-                <Avatar>{user.uid}</Avatar><LinkWithHand href='/logout'><Button onClick={()=>{setUser(null, false)}}>Logout</Button></LinkWithHand>
-              </Col>
-            </Row>
-          </Header>
-          <Content style={{ padding: "0 0" }}>
-            <Layout style={{ minHeight: "100vh" }}>
-              <Sider
-                collapsible
-                collapsed={this.state.collapsed}
-                onCollapse={this.onCollapse}
-              >
-                <Menu
-                  defaultSelectedKeys={[url.asPath]}
-                  defaultOpenKeys={[layout.defaultOpenKeys]}
-                  mode="inline"
-                  style={{ height: "100%" }}
-                  onClick={({key, keyPath})=>{
-                    setDefaultOpenKeys(keyPath[keyPath.length-1])
-                  }}
-                >
-                  <Menu.Item key="/">
-                    <LinkWithHand href='/'>
-                      <Icon type="pie-chart" />
-                      <span>Dashboard</span>
-                    </LinkWithHand>
-                  </Menu.Item>
-                  <SubMenu
-                    key="penganggaran"
-                    title={
-                      <span>
-                        <Icon type="calculator" />
-                        <span>Modul Penganggaran</span>
-                      </span>
-                    }
-                  >
-                    <Menu.Item key="/pok">
-                      <LinkWithHand href='/pok'>
-                        POK
-                      </LinkWithHand>
-                    </Menu.Item>
-                  </SubMenu>
-                  <SubMenu
-                    key="surat"
-                    title={
-                      <span>
-                        <Icon type="form" />
-                        <span>Modul Persuratan</span>
-                      </span>
-                    }
-                  >
-                    <Menu.Item key="spd">SPD</Menu.Item>
-                    <Menu.Item key="s_transport">Surat Transportasi</Menu.Item>
-                    <Menu.Item key="sk">SK</Menu.Item>
-                  </SubMenu>
-                  <SubMenu
-                    key="honor"
-                    title={
-                      <span>
-                        <Icon type="credit-card" />
-                        <span>Modul Honor</span>
-                      </span>
-                    }
-                  >
-                    <Menu.Item key="hondos">Honor Dosen</Menu.Item>
-                    <Menu.Item key="hontransport">Honor Transportasi</Menu.Item>
-                  </SubMenu>
-                </Menu>
-              </Sider>
-              <Layout>
-                <Content style={{ margin: "0 16px" }}>
-                  <ComposedComponent {...this.props} />
-                </Content>
-                <Footer style={{ textAlign: "center" }}>
-                  Sistem Informasi Administrasi ©{new Date().getFullYear()}{" "}
-                  Politeknik Statistika STIS
-                </Footer>
-              </Layout>
-            </Layout>
-          </Content>
+          <SiderMenu
+            Logo={Logo}
+            // 不带Authorized参数的情况下如果没有权限,会强制跳到403界面
+            // If you do not have the Authorized parameter
+            // you will be forced to jump to the 403 interface without permission
+            collapsed={collapsed}
+            onCollapse={this.handleMenuCollapse}
+            menuData={getMenuData()}
+            isMobile={this.state.isMobile}
+          />
         </Layout>
       );
+  
+      return (
+        <DocumentTitle title="Politeknik Statistika STIS">
+          <ContainerQuery query={query}>
+            {params => <div className={classNames(params)}>{layout}</div>}
+          </ContainerQuery>
+        </DocumentTitle>
+      );
     }
+  }
+
+  const mapStateToProps = ({ layout }) => {
+    return {collapsed: layout.collapsed}    
   };
 
   const mapDispatchToProps = (dispatch) => {
@@ -180,5 +105,5 @@ export default ComposedComponent => {
     }
   }
 
-  return connect(state => state, mapDispatchToProps )(WithLayout);
+  return connect(mapStateToProps, mapDispatchToProps )(BasicLayout);
 }
