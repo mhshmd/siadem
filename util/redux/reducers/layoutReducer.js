@@ -4,7 +4,8 @@ export default (
   state = {
     defaultOpenKeys: '/',
     tittle: 'Dashboard',
-    menuCollapsed: false
+    menuCollapsed: false,
+    loading: true
   },
   action
 ) => {
@@ -14,11 +15,16 @@ export default (
         ...state,
         defaultOpenKeys: action.defaultOpenKeys
       };
-    case actionTypes.SET_SIDEBAR_COLLAPSED:
-      return {
-        ...state,
-        menuCollapsed: action.menuCollapsed
-      }
+      case actionTypes.SET_SIDEBAR_COLLAPSED:
+        return {
+          ...state,
+          menuCollapsed: action.menuCollapsed
+        }
+      case actionTypes.SET_LOADING:
+        return {
+          ...state,
+          loading: action.loading
+        }
   }
   return state;
 };

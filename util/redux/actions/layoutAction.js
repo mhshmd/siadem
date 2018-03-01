@@ -6,3 +6,6 @@ export const setDefaultOpenKeys = ( defaultOpenKeys ) => dispatch => {
 export const setSidebarCollapsed = ( menuCollapsed ) => dispatch => {
   return dispatch({ type: actionTypes.SET_SIDEBAR_COLLAPSED, menuCollapsed });
 };
+export const setLoading = ( loading ) => dispatch => {
+  return dispatch({ type: actionTypes.SET_LOADING, loading });
+};

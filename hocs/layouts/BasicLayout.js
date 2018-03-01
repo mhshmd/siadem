@@ -43,7 +43,7 @@ const query = {
 };
 
 let isMobile;
-enquireScreen(b => {
+enquireScreen((b) => {
   isMobile = b;
 });
 
@@ -54,7 +54,7 @@ export default ComposedComponent => {
     };
   
     componentDidMount() {
-      enquireScreen(mobile => {
+      enquireScreen((mobile) => {
         this.setState({
           isMobile: mobile
         });
@@ -68,7 +68,7 @@ export default ComposedComponent => {
 
     render() {
       const {
-        collapsed
+        collapsed, url
       } = this.props;
       const layout = (
         <Layout>
@@ -78,6 +78,7 @@ export default ComposedComponent => {
             onCollapse={this.handleMenuCollapse}
             menuData={getMenuData()}
             isMobile={this.state.isMobile}
+            location={url}
           />
           <Layout>
             <Header style={{ padding: 0 }}>
@@ -107,7 +108,10 @@ export default ComposedComponent => {
   }
 
   const mapStateToProps = ({ layout }) => {
-    return {collapsed: layout.menuCollapsed}    
+    return {
+      collapsed: layout.menuCollapsed,
+      loading: layout.loading
+    }    
   };
 
   const mapDispatchToProps = (dispatch) => {
