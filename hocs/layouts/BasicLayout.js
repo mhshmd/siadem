@@ -5,6 +5,7 @@ import classNames from "classnames";
 import { enquireScreen } from "enquire-js";
 import { Layout, Menu, Breadcrumb, Icon, Button, Avatar, Row, Col } from "antd";
 import SiderMenu from "../../components/SiderMenu";
+import GlobalHeader from "../../components/GlobalHeader";
 import configureProgressBar from "../../util/routing";
 import Router from "next/router";
 import { bindActionCreators } from 'redux'
@@ -62,7 +63,7 @@ export default ComposedComponent => {
     }
 
     handleMenuCollapse = (collapsed) => {
-      setSidebarCollapsed(collapsed)
+      this.props.setSidebarCollapsed(collapsed)
     }
 
     render() {
@@ -73,14 +74,25 @@ export default ComposedComponent => {
         <Layout>
           <SiderMenu
             Logo={Logo}
-            // 不带Authorized参数的情况下如果没有权限,会强制跳到403界面
-            // If you do not have the Authorized parameter
-            // you will be forced to jump to the 403 interface without permission
             collapsed={collapsed}
             onCollapse={this.handleMenuCollapse}
             menuData={getMenuData()}
             isMobile={this.state.isMobile}
           />
+          <Layout>
+            <Header style={{ padding: 0 }}>
+              <GlobalHeader
+                Logo={Logo}
+                collapsed={collapsed}
+                isMobile={this.state.isMobile}
+                onCollapse={this.handleMenuCollapse}
+                currentUser={{name: 'Rifka Rahman Hakim'}}
+              />
+              <Content style={{ margin: '24px 24px 0', height: '100%' }}>
+                <ComposedComponent {...this.props} />
+              </Content>
+            </Header>
+          </Layout>
         </Layout>
       );
   
@@ -95,13 +107,14 @@ export default ComposedComponent => {
   }
 
   const mapStateToProps = ({ layout }) => {
-    return {collapsed: layout.collapsed}    
+    return {collapsed: layout.menuCollapsed}    
   };
 
   const mapDispatchToProps = (dispatch) => {
     return {
       setDefaultOpenKeys: bindActionCreators(setDefaultOpenKeys, dispatch),
-      setUser: bindActionCreators(setUser, dispatch)
+      setUser: bindActionCreators(setUser, dispatch),
+      setSidebarCollapsed: bindActionCreators(setSidebarCollapsed, dispatch)
     }
   }
 

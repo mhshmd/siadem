@@ -75,7 +75,6 @@ export default class SiderMenu extends PureComponent {
         .map((item) => {
           // make dom
           const ItemDom = this.getSubMenuOrItem(item);
-          console.log(ItemDom);
           return ItemDom;
         })
         .filter(item => item);
@@ -124,9 +123,9 @@ export default class SiderMenu extends PureComponent {
           className={styles.sider}
         >
           <div className={styles.logo} key="logo">
-            <Link to="/">
-              <Logo/>
-              <h1>Ant Design Pro</h1>
+            <Link href="/">
+              <Logo />
+              <h1>Kepegawaian</h1>
             </Link>
           </div>
           <Menu

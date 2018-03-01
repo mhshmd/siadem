@@ -1,13 +1,55 @@
 import { isUrl } from '../util/utils';
 
-const menuData = [{
-  name: 'dashboard',
-  icon: 'dashboard',
-  path: 'dashboard',
-  authority: 'uker',
+const menuData = [
+  // {
+  //   name: 'dashboard',
+  //   icon: 'dashboard',
+  //   path: 'dashboard'
+  // },
+  {
+    name: 'Modul Kepegawaian',
+    icon: 'user',
+    path: 'kepegawaian',
+    authority: ['kepegawaian'],
+    children: [{
+      name: 'Data',
+      path: 'data',
+    },
+    {
+      name: 'Notifikasi',
+      path: 'notifikasi',
+    }],
+},
+{
+  name: 'Modul Keuangan',
+  icon: 'wallet',
+  path: 'keuangan',
+  authority: ['keuangan'],
   children: [{
     name: 'POK',
     path: 'pok',
+  },
+  {
+    name: 'Surat Tugas',
+    path: 'surtug',
+    children: [{
+      name: 'SPD',
+      path: 'spd',
+    },{
+      name: 'Transport',
+      path: 'transport',
+    },]
+  },
+  {
+    name: 'Honor',
+    path: 'honor',
+    children: [{
+      name: 'Honor Dosen',
+      path: 'hondos',
+    },{
+      name: 'Transport',
+      path: 'hontransp',
+    },]
   }],
 }];
 
