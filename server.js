@@ -97,6 +97,8 @@ nextApp
       );
     });
 
+    require('./server/routes/pegawai.route')(app)
+
     app.get("*", (req, res) => {
       if(req.cookies.uid){
         return handle(req, res);

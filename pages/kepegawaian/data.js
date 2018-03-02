@@ -3,9 +3,10 @@ import withRedux from "next-redux-wrapper";
 import { bindActionCreators } from "redux";
 import { initStore } from "../../util/redux/store";
 import React, { Component, Fragment } from "react";
-import { Card, Row, Col, Tooltip, Table, Icon, Divider } from "antd";
+import { Card, Row, Col, Tooltip, Table, Icon, Divider, Modal, Button, Upload, message } from "antd";
 import { setLoading } from "../../util/redux/actions/layoutAction";
-import {toReadableDate} from '../../util/utils'
+import {toReadableDate} from '../../util/utils';
+const Dragger = Upload.Dragger;
 
 const a = {
     title: 'nip',
@@ -16,19 +17,29 @@ const a = {
 
 class Data extends Component {
   state = {
+    editModalVisible: false,
+    importPegawaiModalVisible: false,
+    editModalTitle: '',
     columns: [
         {
             title: 'Nama',
             dataIndex: 'nama',
             key: 'nama',
+            render: (nama, record) => {
+                const gelar = record.gelar[record.gelar.length-1];
+                return gelar?( 
+                    (gelar.depan?(gelar.depan+'. '):'')
+                    + nama
+                    + (gelar.belakang?(', '+gelar.belakang):'')
+                 ):nama; 
+            },
             width: 200,
             fixed: 'left'
         },
         {
             title: 'L/P',
             dataIndex: 'jk',
-            key: 'jk',
-            width: 40
+            key: 'jk'
         },
         {
             title: 'NIP',
@@ -37,14 +48,12 @@ class Data extends Component {
                     title: 'Lama',
                     dataIndex: 'nip',
                     key: 'nip_lama',
-                    width: 130,
                     render: nip => (nip.lama)
                 },
                 {
                     title: 'Baru',
                     dataIndex: 'nip',
                     key: 'nip_baru',
-                    width: 150,
                     render: nip => (nip.baru),
                 }
             ]
@@ -56,14 +65,12 @@ class Data extends Component {
                     title: 'Gol',
                     dataIndex: 'pangkat',
                     key: 'pangkat_gol',
-                    width: 40,
                     render: pangkat => (pangkat[pangkat.length-1].gol),
                 },
                 {
                     title: 'TMT',
                     dataIndex: 'pangkat',
                     key: 'pangkat_tmt',
-                    width: 110,
                     render: pangkat => (toReadableDate(pangkat[pangkat.length-1].tmt)),
                 }
             ]
@@ -75,14 +82,12 @@ class Data extends Component {
                     title: 'Nama',
                     dataIndex: 'jabatan',
                     key: 'jabatan_nama',
-                    width: 150,
                     render: jabatan => (jabatan[jabatan.length-1].nama),
                 },
                 {
                     title: 'TMT',
                     dataIndex: 'jabatan',
                     key: 'jabatan_tmt',
-                    width: 110,
                     render: jabatan => (toReadableDate(jabatan[jabatan.length-1].tmt)),
                 }
             ]
@@ -94,14 +99,12 @@ class Data extends Component {
                     title: 'Th',
                     dataIndex: 'masa_kerja',
                     key: 'masa_kerja_th',
-                    width: 50,
                     render: masa_kerja => (masa_kerja.tahun),
                 },
                 {
                     title: 'Bl',
                     dataIndex: 'masa_kerja',
                     key: 'masa_kerja_bl',
-                    width: 50,
                     render: masa_kerja => (masa_kerja.bulan),
                 }
             ]
@@ -113,21 +116,18 @@ class Data extends Component {
                     title: 'Nama',
                     dataIndex: 'latihan_jabatan',
                     key: 'latihan_jabatan_nama',
-                    width: 150,
                     render: latihan_jabatan => (latihan_jabatan[latihan_jabatan.length-1].nama),
                 },
                 {
                     title: 'Tahun',
                     dataIndex: 'latihan_jabatan',
                     key: 'latihan_jabatan_tahun',
-                    width: 50,
                     render: latihan_jabatan => (latihan_jabatan[latihan_jabatan.length-1].tahun),
                 },
                 {
                     title: 'Jml Jam',
                     dataIndex: 'latihan_jabatan',
                     key: 'latihan_jabatan_jumlah_jam',
-                    width: 50,
                     render: latihan_jabatan => (latihan_jabatan[latihan_jabatan.length-1].jumlah_jam),
                 }
             ]
@@ -139,28 +139,24 @@ class Data extends Component {
                     title: 'Nama',
                     dataIndex: 'pendidikan',
                     key: 'pendidikan_nama',
-                    width: 150,
                     render: pendidikan => (pendidikan[pendidikan.length-1].nama),
                 },
                 {
                     title: 'PT',
                     dataIndex: 'pendidikan',
                     key: 'pendidikan_pt',
-                    width: 50,
                     render: pendidikan => (pendidikan[pendidikan.length-1].pt),
                 },
                 {
                     title: 'Lls Th',
                     dataIndex: 'pendidikan',
                     key: 'pendidikan_lulus_tahun',
-                    width: 50,
                     render: pendidikan => (pendidikan[pendidikan.length-1].lulus_tahun),
                 },
                 {
                     title: 'Ijazah',
                     dataIndex: 'pendidikan',
                     key: 'pendidikan_ijazah',
-                    width: 50,
                     render: pendidikan => (pendidikan[pendidikan.length-1].ijazah),
                 }
             ]
@@ -172,28 +168,24 @@ class Data extends Component {
                     title: 'Tempat Lahir',
                     dataIndex: 'ttl',
                     key: 'ttl_tempat_lahir',
-                    width: 150,
                     render: ttl => (ttl.tempat_lahir),
                 },
                 {
                     title: 'Tanggal Lahir',
                     dataIndex: 'ttl',
                     key: 'ttl_tgl_lahir',
-                    width: 50,
                     render: ttl => (toReadableDate(ttl.tgl_lahir)),
                 },
                 {
                     title: 'BUP',
                     dataIndex: 'ttl',
                     key: 'ttl_bup',
-                    width: 50,
                     render: ttl => (ttl.bup),
                 },
                 {
                     title: 'Pensiun',
                     dataIndex: 'ttl',
                     key: 'ttl_pensiun',
-                    width: 50,
                     render: ttl => (toReadableDate(ttl.pensiun)),
                 }
             ]
@@ -202,28 +194,24 @@ class Data extends Component {
             title: 'AK',
             dataIndex: 'angka_kredit',
             key: 'ak',
-            width: 50,
             render: angka_kredit => (angka_kredit),
         },
         {
             title: 'No Karpeg',
             dataIndex: 'nomor_karpeg',
             key: 'nomor_karpeg',
-            width: 50,
             render: nomor_karpeg => (nomor_karpeg),
         },
         {
             title: 'Proyeksi Pangkat/Jabatan',
             dataIndex: 'proyeksi_pangkat_jabatan',
             key: 'proyeksi_pangkat_jabatan',
-            width: 50,
             render: proyeksi_pangkat_jabatan => (proyeksi_pangkat_jabatan),
         },
         {
             title: 'Periode KGB',
             dataIndex: 'periode_kgb',
             key: 'periode_kgb',
-            width: 50,
             render: periode_kgb => (toReadableDate(periode_kgb)),
         },
         {
@@ -233,21 +221,18 @@ class Data extends Component {
                     title: 'NUPN',
                     dataIndex: 'dosen',
                     key: 'dosen_nupn',
-                    width: 150,
                     render: dosen => (dosen.nupn),
                 },
                 {
                     title: 'NIDN',
                     dataIndex: 'dosen',
                     key: 'dosen_nidn',
-                    width: 50,
                     render: dosen => (dosen.nidn),
                 },
                 {
                     title: 'Sertifikasi',
                     dataIndex: 'dosen',
                     key: 'dosen_sertifikasi',
-                    width: 50,
                     render: dosen => (dosen.sertifikasi),
                 }
             ]
@@ -259,14 +244,12 @@ class Data extends Component {
                     title: 'Jenis Penghargaan',
                     dataIndex: 'penghargaan',
                     key: 'penghargaan_jenis_penghargaan',
-                    width: 150,
                     render: penghargaan => (penghargaan[penghargaan.length-1].jenis_penghargaan),
                 },
                 {
                     title: 'Tahun',
                     dataIndex: 'penghargaan',
                     key: 'penghargaan_tahun',
-                    width: 50,
                     render: penghargaan => (penghargaan[penghargaan.length-1].tahun),
                 }
             ]
@@ -278,14 +261,12 @@ class Data extends Component {
                     title: 'Jenis Hukuman',
                     dataIndex: 'hukuman_disiplin',
                     key: 'hukuman_disiplin_jenis_hukuman',
-                    width: 150,
                     render: hukuman_disiplin => (hukuman_disiplin[hukuman_disiplin.length-1].jenis_hukuman),
                 },
                 {
                     title: 'TMT',
                     dataIndex: 'hukuman_disiplin',
                     key: 'hukuman_disiplin_tmt',
-                    width: 50,
                     render: hukuman_disiplin => (toReadableDate(hukuman_disiplin[hukuman_disiplin.length-1].tmt)),
                 }
             ]
@@ -294,20 +275,18 @@ class Data extends Component {
             title: 'No Telp',
             dataIndex: 'nomor_telp',
             key: 'nomor_telp',
-            width: 50
         },
         {
             title: 'Alamat Lengkap',
             dataIndex: 'alamat_lengkap',
             key: 'alamat_lengkap',
-            width: 50
         },
         {
             title: 'Pilihan',
             key: 'operation',
             fixed: 'right',
-            width: 50,
-            render: () => <a href="#">Ubah</a>,
+            width: 65,
+            render: (operation, record) => <a href="#" onClick={()=>{this.setEditModalVisible(true, record)}}>Ubah</a>,
         }
     ],
     data: [{
@@ -373,6 +352,19 @@ class Data extends Component {
     }]
   }
 
+  setEditModalVisible = (editModalVisible, row)=>{
+      this.setState({
+        editModalVisible: !this.state.editModalVisible,
+        editModalTitle: row?row.nama:this.state.editModalTitle
+      })
+  }
+
+  setImportPegawaiModalVisible = (importPegawaiModalVisible, row)=>{
+      this.setState({
+        importPegawaiModalVisible: !this.state.importPegawaiModalVisible
+      })
+  }
+
   componentDidMount() {
     setTimeout(() => {
       this.props.setLoading(false);
@@ -401,10 +393,48 @@ class Data extends Component {
                         columns={columns} 
                         dataSource={data} 
                         bordered
-                        scroll={{ x: '400%', y: 1500 }}
+                        scroll={{ x: '300%' }}
                         size="small"
                     />
+                    <Modal
+                        title={this.state.editModalTitle}
+                        wrapClassName="vertical-center-modal"
+                        visible={this.state.editModalVisible}
+                        onOk={() => this.setEditModalVisible(false)}
+                        onCancel={() => this.setEditModalVisible(false)}
+                        >
+                        <p>some contents...</p>
+                        <p>some contents...</p>
+                        <p>some contents...</p>
+                    </Modal>
                   </Col>
+                </Row>
+                <Row>
+                    <Col md={24} sm={24} xs={24}>
+                        <Button type="dashed" title="Import data pegawai" onClick={this.setImportPegawaiModalVisible}>Import</Button>
+                        <Modal
+                            title="Import data pegawai"
+                            wrapClassName="vertical-center-modal"
+                            visible={this.state.importPegawaiModalVisible}
+                            onOk={() => this.setImportPegawaiModalVisible(false)}
+                            onCancel={() => this.setImportPegawaiModalVisible(false)}
+                            >
+                            <Dragger
+                                action="/pegawai/import_data_pegawai"
+                                name="data_pegawai"
+                                multiple={false}
+                                onChange={(info) => {
+                                    console.log(info);
+                                }}
+                                accept='.xlsx,.xls'
+                            >
+                                <p className="ant-upload-drag-icon">
+                                <Icon type="inbox" />
+                                </p>
+                                <p className="ant-upload-text">Click or drag file to this area to upload (Excel file)</p>
+                            </Dragger>
+                        </Modal>
+                    </Col>
                 </Row>
               </Card>
             </Col>
