@@ -5,6 +5,7 @@ import { initStore } from "../../util/redux/store";
 import React, { Component, Fragment } from "react";
 import { Card, Row, Col, Tooltip, Table, Icon, Divider, Modal, Button, Upload, message } from "antd";
 import { setLoading } from "../../util/redux/actions/layoutAction";
+import { addEvent } from "../../util/redux/actions/socketAction";
 import {toReadableDate} from '../../util/utils';
 const Dragger = Upload.Dragger;
 
@@ -369,6 +370,9 @@ class Data extends Component {
     setTimeout(() => {
       this.props.setLoading(false);
     }, 500);
+    this.props.addEvent('pegawai/data.getUpladedImportData', (data)=>{
+        console.log(data);
+    })
   }
 
   render() {
@@ -449,12 +453,16 @@ const Page = page(props => <Data {...props} />);
 
 const mapDispatchToProps = dispatch => {
   return {
-    setLoading: bindActionCreators(setLoading, dispatch)
+    setLoading: bindActionCreators(setLoading, dispatch),
+    addEvent: bindActionCreators(addEvent, dispatch)
   };
 };
 
 export default withRedux(
   initStore,
-  state => ({ loading: state.layout.loading }),
+  state => ({ 
+    loading: state.layout.loading,
+    socket: state.socket
+   }),
   mapDispatchToProps
 )(Page);

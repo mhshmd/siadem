@@ -48,8 +48,18 @@ io.use(
     autoSave: true
   })
 );
+const daftar_client_socketIO = {}
+const daftar_hapus_client_schedule = {}
+const schedule = require('node-schedule')
+const moment = require('moment')
 io.use((client, next) => {
-  // console.log(client.handshake.cookies);
+  if(client.handshake.cookies.uid){
+    daftar_client_socketIO[client.handshake.cookies.uid] = client;
+    daftar_hapus_client_schedule[client.handshake.cookies.uid] = schedule.scheduleJob(moment().add(1, 'd').format(), ()=>{
+      daftar_hapus_client_schedule[client.handshake.cookies.uid]&&daftar_hapus_client_schedule[client.handshake.cookies.uid].cancel();
+      delete daftar_client_socketIO[client.handshake.cookies.uid];
+    })
+  }
   return next();
 });
 
@@ -58,46 +68,26 @@ io.on("connection", function(client) {
   commonEvents(client);
 });
 
-const User = require("./server/models/User.model");
-const crypto = require("crypto");
-
 nextApp
   .prepare()
   .then(() => {
-    app.get("/logout", (req, res) => {
-      res.clearCookie("uid");
-      nextApp.render(req, res, '/login', {})
-    });
-    app.post("/login", (req, res) => {
-      User.findOne(
-        {
-          username: req.body.username,
-          password: crypto.createHmac("sha256", req.body.password).digest("hex")
-        },
-        "_id",
-        (err, res_user_id) => {
-          if (!err) {
-            if (res_user_id !== null) {
-              res.cookie("uid", res_user_id._id);
-              res.send({ isValid: true, uid: res_user_id._id });
-            } else {
-              res.send({
-                isValid: false,
-                errMsg: "Maaf, username atau password Anda salah."
-              });
+    const getLoggedUser = require('./functions/getLoggedUser')
+    app.use((req, res, next)=>{
+      if(/^\/(_next|static|login|logout)/.test(req.url)){
+        return next()
+      } else {
+        getLoggedUser( redisClient, req.cookies.uid, ( loggedUser ) => {
+          if(loggedUser) return next()
+            else {
+              nextApp.render(req, res, '/login', {redirect: req.url, errMsg: 'Anda harus login.'})
             }
-          } else {
-            console.log(err);
-            res.send({
-              isValid: false,
-              errMsg: "Maaf, server dalam gangguan."
-            });
-          }
-        }
-      );
-    });
+        })
+      }
+    })
 
-    require('./server/routes/pegawai.route')(app)
+    require('./server/routes/user.route')(app, redisClient, nextApp, daftar_client_socketIO)
+
+    require('./server/routes/pegawai.route')(app, redisClient, nextApp, daftar_client_socketIO)
 
     app.get("*", (req, res) => {
       if(req.cookies.uid){

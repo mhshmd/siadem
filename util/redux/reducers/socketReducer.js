@@ -8,5 +8,14 @@ export default (
   ):null,
   action
 ) => {
+  switch (action.type) {
+    case 'ADD_EVENT':
+    if(state){
+      state.on(action.eventName, (data)=>{
+        action.cb(data)
+      })
+      return state;
+    }
+  }
   return state;
 };

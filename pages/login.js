@@ -29,7 +29,7 @@ class NormalLoginForm extends React.Component {
         $.post("/login", values, (data, status) => {
           if (data.isValid) {
             this.props.setUser(data.uid, true);
-            Router.replace("/");
+            Router.replace(this.props.url.query.redirect||"/");
           } else {
             this.setState({ errMsg: data.errMsg });
           }
@@ -51,7 +51,7 @@ class NormalLoginForm extends React.Component {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { errMsg } = this.state;
+    const errMsg = this.state.errMsg || this.props.url.query.errMsg;
     const { uid } = this.props;
 
     if (uid) {
